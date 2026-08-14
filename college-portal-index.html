@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>College Portal | Aryan</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f4f7fb;color:#17243d}
+header{background:#172b4d;color:white;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header h1{margin:0;font-size:22px}.owner{font-size:12px;opacity:.8}
+nav{display:flex;gap:8px;padding:12px;background:white;overflow:auto;position:sticky;top:64px;z-index:4;box-shadow:0 2px 8px #0001}
+nav button{border:0;background:#eef2f7;padding:11px 15px;border-radius:10px;white-space:nowrap;font-weight:700;color:#243552}
+nav button.active,button.primary{background:#f5bd2e;color:#172b4d}
+main{max-width:1100px;margin:auto;padding:18px}
+.hero{background:#172b4d;color:white;border-radius:22px;padding:24px;margin-bottom:18px}
+.hero h2{font-size:32px;margin:0 0 8px}.hero p{color:#d6dfed}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.card{background:white;border-radius:16px;padding:18px;box-shadow:0 4px 18px #172b4d12;margin-bottom:14px}
+.stat{font-size:30px;font-weight:800}.muted{color:#69758a;font-size:13px}
+input,select{width:100%;padding:12px;border:1px solid #d8dee8;border-radius:10px;margin:5px 0 12px;font-size:15px}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:700}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.danger{background:#ffe5e5;color:#b42318}.secondary{background:#edf2f7}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #edf0f5;font-size:14px}
+.tablewrap{overflow:auto}footer{text-align:center;padding:30px;color:#69758a}footer strong{color:#172b4d}
+.hidden{display:none}.notice{border-left:4px solid #f5bd2e;padding-left:12px}
+@media(max-width:600px){main{padding:12px}.hero h2{font-size:26px}header{top:0}nav{top:61px}th,td{font-size:12px}}
+</style>
+</head>
+<body>
+<header><div><h1>🎓 College Portal</h1><div class="owner">Student Management & Attendance System</div></div><div>ARYAN</div></header>
+<nav id="nav">
+<button data-page="home" class="active">Overview</button><button data-page="students">Students</button><button data-page="attendance">Attendance</button><button data-page="notices">Notices</button>
+</nav>
+<main>
+<section id="home" class="page">
+<div class="hero"><div class="muted">COLLEGE MANAGEMENT SYSTEM</div><h2>A smarter way to manage campus.</h2><p>Manage students, attendance and notices from one simple portal.</p><button class="primary" onclick="show('students')">Register Student +</button></div>
+<div class="grid">
+<div class="card"><div class="muted">REGISTERED STUDENTS</div><div class="stat" id="studentCount">0</div></div>
+<div class="card"><div class="muted">AVERAGE ATTENDANCE</div><div class="stat" id="avgAttendance">0%</div></div>
+<div class="card"><div class="muted">NOTICES</div><div class="stat" id="noticeCount">0</div></div>
+</div>
+<div class="card"><h3>Quick Search</h3><input id="quickSearch" placeholder="Search student by name or roll number" oninput="quickSearch()"><div id="quickResult"></div></div>
+</section>
+
+<section id="students" class="page hidden">
+<div class="card"><h2>Students</h2><p class="muted">Add, edit, delete and search student records.</p>
+<form id="studentForm"><input type="hidden" id="editId"><input id="name" placeholder="Student name" required><input id="roll" placeholder="Roll number" required><input id="course" placeholder="Course / Branch" required><input id="phone" placeholder="Phone number"><button class="primary" type="submit">Save Student</button> <button type="button" class="secondary" onclick="resetForm()">Clear</button></form>
+<input id="studentSearch" placeholder="Search students..." oninput="renderStudents()"></div>
+<div class="card tablewrap"><table><thead><tr><th>Name</th><th>Roll</th><th>Course</th><th>Phone</th><th>Actions</th></tr></thead><tbody id="studentRows"></tbody></table></div>
+</section>
+
+<section id="attendance" class="page hidden">
+<div class="card"><h2>Attendance</h2><p class="muted">Update attendance percentage for each student.</p><div id="attendanceList"></div></div>
+</section>
+
+<section id="notices" class="page hidden">
+<div class="card"><h2>Notices</h2><form id="noticeForm"><input id="noticeTitle" placeholder="Notice title" required><input id="noticeText" placeholder="Notice details" required><button class="primary">Add Notice</button></form></div>
+<div id="noticeList"></div>
+</section>
+</main>
+<footer>Made by <strong>Aryan</strong><br><small>Founder & Owner — College Portal</small></footer>
+
+<script>
+const get=(k,d=[])=>JSON.parse(localStorage.getItem(k)||JSON.stringify(d));
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+let students=get('cp_students'), notices=get('cp_notices');
+
+function show(id){
+ document.querySelectorAll('.page').forEach(x=>x.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===id));
+ renderAll();
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.page));
+
+document.getElementById('studentForm').onsubmit=e=>{
+ e.preventDefault();
+ const id=document.getElementById('editId').value;
+ const obj={id:id||Date.now(),name:name.value.trim(),roll:roll.value.trim(),course:course.value.trim(),phone:phone.value.trim(),attendance:id?(students.find(s=>String(s.id)===id)?.attendance||0):0};
+ if(id) students=students.map(s=>String(s.id)===id?obj:s); else students.push(obj);
+ save('cp_students',students);resetForm();renderAll();
+};
+function resetForm(){studentForm.reset();editId.value='';}
+function editStudent(id){
+ const s=students.find(x=>x.id===id); if(!s)return;
+ editId.value=s.id;name.value=s.name;roll.value=s.roll;course.value=s.course;phone.value=s.phone;
+ show('students');scrollTo(0,0);
+}
+function deleteStudent(id){if(confirm('Delete this student?')){students=students.filter(s=>s.id!==id);save('cp_students',students);renderAll();}}
+function renderStudents(){
+ const q=(studentSearch.value||'').toLowerCase();
+ studentRows.innerHTML=students.filter(s=>(s.name+' '+s.roll+' '+s.course).toLowerCase().includes(q)).map(s=>
+ `<tr><td>${esc(s.name)}</td><td>${esc(s.roll)}</td><td>${esc(s.course)}</td><td>${esc(s.phone)}</td><td><button class="secondary" onclick="editStudent(${s.id})">Edit</button> <button class="danger" onclick="deleteStudent(${s.id})">Delete</button></td></tr>`).join('')||'<tr><td colspan="5" class="muted">No students yet.</td></tr>';
+}
+function renderAttendance(){
+ attendanceList.innerHTML=students.map(s=>`<div class="card"><b>${esc(s.name)}</b> <span class="muted">(${esc(s.roll)})</span><input type="number" min="0" max="100" value="${s.attendance||0}" onchange="setAttendance(${s.id},this.value)"><div class="muted">Attendance: ${s.attendance||0}%</div></div>`).join('')||'<p class="muted">Add students first.</p>';
+}
+function setAttendance(id,v){students=students.map(s=>s.id===id?{...s,attendance:Number(v)}:s);save('cp_students',students);renderAll();}
+noticeForm.onsubmit=e=>{e.preventDefault();notices.unshift({id:Date.now(),title:noticeTitle.value,text:noticeText.value,date:new Date().toLocaleDateString()});save('cp_notices',notices);noticeForm.reset();renderAll();}
+function renderNotices(){noticeList.innerHTML=notices.map(n=>`<div class="card notice"><h3>${esc(n.title)}</h3><p>${esc(n.text)}</p><small class="muted">${n.date}</small><br><button class="danger" onclick="deleteNotice(${n.id})">Delete</button></div>`).join('')||'<div class="card muted">No notices yet.</div>'}
+function deleteNotice(id){notices=notices.filter(n=>n.id!==id);save('cp_notices',notices);renderAll();}
+function quickSearch(){const q=quickSearch.value.toLowerCase();const a=students.filter(s=>(s.name+' '+s.roll).toLowerCase().includes(q));quickResult.innerHTML=a.map(s=>`<div class="card"><b>${esc(s.name)}</b> — ${esc(s.roll)}<br><span class="muted">${esc(s.course)} · Attendance ${s.attendance||0}%</span></div>`).join('')||'<span class="muted">No matching student.</span>'}
+function renderAll(){
+ studentCount.textContent=students.length;noticeCount.textContent=notices.length;
+ avgAttendance.textContent=(students.length?Math.round(students.reduce((a,s)=>a+(Number(s.attendance)||0),0)/students.length):0)+'%';
+ renderStudents();renderAttendance();renderNotices();quickSearch();
+}
+function esc(x){return String(x??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));}
+renderAll();
+</script>
+</body>
+</html>
