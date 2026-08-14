@@ -72,7 +72,13 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;bor
   // Firebase ko suru karein
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+<input id="name" placeholder="Student Name">
+<input id="roll_no" placeholder="Roll Number">
+<input id="course" placeholder="Course">
 
+<button onclick="saveStudent()">Save</button>
+
+<div id="students"></div>
   // 3. Student Form submit hone par data save karne ka function
   async function saveData(event) {
     event.preventDefault(); // Page refresh hone se rokne ke liye
