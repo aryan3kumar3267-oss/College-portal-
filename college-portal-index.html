@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ju<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -41,7 +41,9 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;bor
 </div>
 <div class="card"><h3>Quick Search</h3><input id="quickSearch" placeholder="Search student by name or roll number" oninput="quickSearch()"><div id="quickResult"></div></div>
 </section>
-
+const inputEl = document.getElementById('your-input-id');
+const textValue = inputEl ? inputEl.value.trim() : '';
+ save all students details {
 <section id="students" class="page hidden">
 <div class="card"><h2>Students</h2><p class="muted">Add, edit, delete and search student records.</p>
 <form id="studentForm"><input type="hidden" id="editId"><input id="name" placeholder="Student name" required><input id="roll" placeholder="Roll number" required><input id="course" placeholder="Course / Branch" required><input id="phone" placeholder="Phone number"><button class="primary" type="submit">Save Student</button> <button type="button" class="secondary" onclick="resetForm()">Clear</button></form>
