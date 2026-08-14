@@ -54,6 +54,53 @@ table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;bor
 </section>
 
 <section id="notices" class="page hidden">
+ <!-- 1. Firebase SDK Libraries add karein -->
+<script type="module">
+  import { initializeApp } from "https://gstatic.com";
+  import { getFirestore, collection, addDoc } from "https://gstatic.com";
+
+  // 2. Apni Firebase Config details yahan dalein (Firebase Console se mili hui)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Firebase ko suru karein
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 3. Student Form submit hone par data save karne ka function
+  async function saveData(event) {
+    event.preventDefault(); // Page refresh hone se rokne ke liye
+
+    // Form se values nikalne ke liye (Apne HTML input ki ID ke hisaab se badlein)
+    const sName = document.getElementById("studentName").value;
+    const sRoll = document.getElementById("rollNumber").value;
+
+    try {
+      // 'students' naam ka collection (table) banega aur data save hoga
+      const docRef = await addDoc(collection(db, "students"), {
+        name: sName,
+        roll: sRoll,
+        timestamp: new Date()
+      });
+      alert("Student data successfully save ho gaya! ID: " + docRef.id);
+      document.getElementById("studentForm").reset(); // Form khali karne ke liye
+    } catch (error) {
+      console.error("Error aaya: ", error);
+      alert("Data save nahi hua. Console check karein.");
+    }
+  }
+
+  // Apne form ke submit button par click hone par function chalayein
+  // Yeh dhyan rakhein ki aapke form ki ID 'studentForm' ho
+  document.getElementById("studentForm").addEventListener("submit", saveData);
+</script>
+
 <div class="card"><h2>Notices</h2><form id="noticeForm"><input id="noticeTitle" placeholder="Notice title" required><input id="noticeText" placeholder="Notice details" required><button class="primary">Add Notice</button></form></div>
 <div id="noticeList"></div>
 </section>
